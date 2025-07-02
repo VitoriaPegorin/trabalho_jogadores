@@ -1,0 +1,12 @@
+#ifndef MENUS_H
+#define MENUS_H
+
+#include "types.h"
+
+
+uint8_t menu_principal();
+uint8_t menu_relatorios();
+uint8_t menu_buscar();
+
+
+#endif
