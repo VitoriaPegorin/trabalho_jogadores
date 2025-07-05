@@ -4,12 +4,15 @@
 #include <stdio.h>
 #include "types.h"
 
+void limparBuffer(string str);
+void liberar_lista_jogadores(lista_jogadores_t *lista);
+void liberar_lista_jogos(lista_jogos_t *lista);
 void retirar_enter(string str);
 void to_upper(string str);
 void limpar_tela();
 void msg_press_enter();
 void msg_cabecalho(string msg);
-void ordenar_em_ordem_alfabetica()//lista_t * lista_rh);
-void inativar_jogador();
+void ordenar_em_ordem_alfabetica();//lista_t * lista_rh);
+
 
 #endif

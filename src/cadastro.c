@@ -1,114 +1,174 @@
 #include "../include/cadastro.h"
+#include "../include/consultas.h"
+#include "../include/utils.h"
+
+void inicializa_lista_jogadores(lista_jogadores_t *lista){
 
 
-dados_jog_t *cadastrar_jogadores(dados_jog_t *lista){
+    lista->cabeca = NULL;
+    lista->nr_nos = 0;
 
-    dados_jog_t *aux;
+}
+void inicializa_lista_jogos(lista_jogos_t *lista){
 
-    aux = (dados_jog_t*)malloc(sizeof(dados_jog_t));
+
+    lista->cabeca = NULL;
+    lista->nr_nos = 0;
+
+}
+uint8_t gerar_ID_unico(lista_jogadores_t *lista){
+
+    uint8_t id_novo;
+    bool existe;
+
+    do{
+        
+        id_novo = rand() % 9000 + 1000;
+         existe = false;
+
+       no_t *aux = lista->cabeca; // percorre a lista
+        while (aux != NULL) {
+            if (aux->dados.id == id_novo) {
+                existe = true;
+                break;
+            }
+            aux = aux->proximo;
+        }
+    } while (existe);
+
+    return id_novo;
+}
+
+no_t *cadastrar_jogadores(lista_jogadores_t *lista){
+
+    no_t *aux;
+
+    aux = (no_t*)malloc(sizeof(no_t));
 
     if(!aux){
 
         printf("Não foi possível alocar dinamiamente'\n");
-        return lista;
+        return NULL;
     }
-
+        //Nome
+        getchar();
         printf("Qual o nome do jogador?\n");
-        fgets(aux->nome,T_STR, stdin);
-        limparBuffer(aux->nome);
+        fgets(aux->dados.nome,T_STR, stdin);
+        limparBuffer(aux->dados.nome);
+        to_upper(aux->dados.nome);
+       
+        //Gera ID único
+        aux->dados.id = gerar_ID_unico(lista); 
 
-        printf("Qual o ID do jogador\n");
-        scanf("%d", &aux->id);
-
+        //Idade
         printf("Qual a idade do jogador?\n");
-        scanf("%d", &aux->idade); 
-            
+        scanf("%hhi", &aux->dados.idade); 
+           
+        //Altura
         printf("Qual a altura do jogador?\n");
-        scanf("%f", &aux->altura);
+        scanf("%f", &aux->dados.altura);
 
         printf("Qual o peso do jogador?\n");
-        scanf("%f", &aux->peso);
+        scanf("%f", &aux->dados.peso);
 
         printf("Qual o valor de aquisição do jogador?\n");
-        scanf("%f", &aux->aquisicao);
+        scanf("%f", &aux->dados.aquisicao);
 
         printf("Qual o valor de venda do jogador?\n");
-        scanf("%f", &aux->jg_venda);
+        scanf("%f", &aux->dados.jg_venda);
 
         printf("Qual o salário do jogador?\n");
-        scanf("%f", &aux->salario);
+        scanf("%f", &aux->dados.salario);
 
+        getchar();
         printf("Qual a posicao do jogador?\n");
-        fgets(aux->posicao, T_STR, stdin);
-        limparBuffer(aux->posicao);
+        fgets(aux->dados.posicao, T_STR, stdin);
+        limparBuffer(aux->dados.posicao);
+        to_upper(aux->dados.posicao);
 
-        strcpy(aux->situacao, "ativo");
+        strcpy(aux->dados.status, "ATIVO");
 
-        aux->proximo = lista;
-        lista = aux;
+        strcpy(aux->dados.situacao, "JOGANDO");
+
+        aux->proximo = NULL;
             
 
     printf("\nJogador cadstrado com sucesso!\n");
 
             
-   return lista;
+   return aux;
 
 }
-dados_jog_t *escalar_jogadores(dados_jog_t *lista_jogadores){
+jogadores_escalados_t *escalar_jogadores(lista_jogadores_t *lista){
 
-    unin_t id;
-    dados_jog_t *escalados = NULL;
-    dados_jog_t *ultimo = NULL;
-    dados_jog_t aux;
+    uint8_t id, qtd = 0;
+    char opc;
+    jogadores_escalados_t *escalados = NULL;
+    jogadores_escalados_t *ultimo = NULL;
+    
+        do{
 
-    while(1){
-        printf("Digite o ID do jogador que deseja escalar, (ou -1 da encerrar)\n");
-        scanf("%d", &id);
+            printf("Digite o id do jogador para localizar\n");
+            scanf("%hhi", &id);
 
-        if(id == -1) break;
+             no_t *aux = localizar_id_do_jogador(id, lista);
 
-        dados_jog_t *jogador = buscar_id_do_jogador(id, lista_jogadores);
+            if(!aux){
+            printf("Jogador não encontrado!!\n");
+                return NULL;
 
-        if(!jogador){
-           printf("Jogador não encontrado!!\n");
-            return;
-        }
+            }
 
-        aux = (dados_jog_t*)malloc(sizeof(dados_jog_t));
+            jogadores_escalados_t *novo = malloc(sizeof(jogadores_escalados_t));
 
-        if(!aux){
-            printf("Erro ao alocar dinamicamente\n");
-            break;
-        }
+                if(!novo){
+                    printf("Erro ao alocar dinamicamente\n");
+                return NULL;
+                }
 
-        *aux = *jogador;
-        aux ->proximo = NULL;
+                novo->jogador = aux;
+                novo->prox = NULL;
 
+                if(escalados == NULL){
+                    escalados = novo;
+                } else {
+                    ultimo ->prox = novo;
+                }  
 
-        if(escalados == NULL){
-            escalados = aux;
-        } else {
-            ultimo ->proximo = aux;
-        }  
+                ultimo = novo;
+                qtd ++;
 
-        ultimo = aux;
+                printf("Jogador escalado com sucesso\n");
 
+            if(qtd >= 11){
+                printf("Deseja escalar mais jogadores(S/N):\n");
+                scanf("%c", &opc);
+
+                if (opc != 'S' && opc != 's') break;
+
+            }    
+
+    
+
+    } while(qtd < 11 || (opc == 'S' || opc == 's'));
+
+  
+    if (qtd < 11) {
+        printf("\nNúmero insuficiente de jogadores escalados. Operação cancelada.\n");
+        return NULL;
     }
 
-    if(escalados == NULL){
-        printf("nenhum jogador escalado\n");
-    }
+    printf("\nEscalação concluída com %hhi jogadores!\n", qtd);
 
     return escalados;
 
-    //if (strcmp(aux->status, "ativo") == 0)
-    // Pode escalar
-
 }
-jg_reali_t *cadastrar_jogos(dados_jog_t *lista_jogadores){
-    jg_reali_t *aux;
 
-     aux = (jg_reali_t*)malloc(sizeof(jg_reali_t));
+not_t *cadastrar_jogos(lista_jogos_t *lista, lista_jogadores_t *lista_jogadores){
+
+    not_t *aux = lista->cabeca;
+
+     aux = (not_t*)malloc(sizeof(not_t));
 
     if(!aux){
 
@@ -117,73 +177,175 @@ jg_reali_t *cadastrar_jogos(dados_jog_t *lista_jogadores){
     }
 
         printf("Antes de cadastrar o jogo eh necessário escalar jogadores.\n");
-        aux->escalados = escalar_jogadores(lista_jogadores);
+        //aux->dados.time_escalado = escalar_jogadores(lista_jogadores);
 
-    if(escaldos == NULL){
+    if(aux->dados.time_escalado == NULL){
        printf("Partida não registrada nenhum jogador foi escalado.\n");
+       free(aux);
        return NULL;
     }
 
-
+    getchar();
         printf("Qual o nome do time adversário?\n");
-        fgets (aux->nome_ti, T_STR, stdin);
-        limparBuffer(aux->nome_ti);
+        fgets (aux->dados.nome_ti, T_STR, stdin);
+        limparBuffer(aux->dados.nome_ti);
+        to_upper(aux->dados.nome_ti);
             
         printf("Qual foi a data do jogo?\n");
-        fgets(aux->data,T_STR,stdin);
-        limparBuffer(aux->data);
+        fgets(aux->dados.data,T_STR,stdin);
+        limparBuffer(aux->dados.data);
+        to_upper(aux->dados.data);
             
         printf("Qual foi o local do jogo?\n");
-        fgets(aux->local,T_STR, stdin);
-        limparBuffer(aux->local);
+        fgets(aux->dados.local,T_STR, stdin);
+        limparBuffer(aux->dados.local);
+        to_upper(aux->dados.local);
 
         printf("Qual foi o resultado da partida(Time e time adversário)?\n");
-        scanf("%d", &aux->resultado_1);
-        scanf("%d", &aux->resultado_2);
+        scanf("%hhi", &aux->dados.resultado_1);
+        scanf("%hhi", &aux->dados.resultado_2);
     
         printf("Quantas substituições foram realizadas?\n");
-        fgets(aux->substituicao,T_STR, stdin);
-        limparBuffer(aux->substituicao);
+        fgets(aux->dados.substituicao,T_STR, stdin);
+        limparBuffer(aux->dados.substituicao);
+        to_upper(aux->dados.substituicao);
 
 
-        aux->proximo_2 = NULL;
+        aux->proximo = NULL;
 
-    return lista_jogadores;
+        printf("Partida registrada com sucesso\n");
 
-    //verificar funcao
+    return aux;
+
+
 }
-bool lista_vazia(dados_jog_t *lista){
+ bool lista_vazia(lista_jogadores_t*lista){
 
-    if(lista == NULL){
-        return true;
+    if (lista->cabeca) return false;  // Lista não vazia
+    
+    return true; // Lista vazia
+}
+
+bool lista_jogos_vazia(lista_jogos_t *lista) {
+
+    if (lista->cabeca) return false;  // Lista não vazia
+    
+    return true; // Lista vazia
+
+}
+
+void mostrar_dados_jogadores(no_t *aux){
+
+    
+
+        printf("------------------------------------------\n");
+        printf("Nome:-----------------------%s\n", aux->dados.nome);
+        printf("Idade:----------------------%d\n", aux->dados.idade);
+        printf("ID:-------------------------%d\n", aux->dados.id);
+        printf("Altura:---------------------%.2f\n", aux->dados.altura);
+        printf("Peso:-----------------------%.2f\n", aux->dados.peso);
+        printf("Posição:--------------------%s\n", aux->dados.posicao);
+        printf("Venda:----------------------%.2f\n", aux->dados.jg_venda);
+        printf("Aquisição:------------------%.2f\n",aux->dados.aquisicao);
+        printf("Salário:--------------------%.2f\n",aux->dados.salario);
+        printf("Status:-------------------%s\n",aux->dados.status);
+        printf("Situação:-------------------%s\n",aux->dados.situacao);
+
+        
+
+
+
+}
+void mostrar_dados_jogos(not_t *lista){
+
+    not_t *aux = lista;
+
+    while(aux != NULL){
+        printf("---------------------------------------------\n");
+        printf("Time adversário:--------------%s\n",aux->dados.nome_ti);
+        printf("Data:-------------------------%s\n", aux->dados.data);                                                                
+        printf("Local:------------------------%s\n", aux->dados.local);
+        printf("Resultado:--------------------%d\n", aux->dados.resultado_1);
+        printf("Resultado do adversário:------%d\n", aux->dados.resultado_2);
+        printf("Subustituições:---------------%s\n",aux->dados.substituicao);
+
+        aux = aux->proximo;
+
     }
 
-    return false;
+    
+}
+
+void editar_venda_e_valor_de_venda_jogador(lista_jogadores_t *lista){
+
+    uint8_t id;
+    uint8_t novo_valor;
+    string nova_situacao;
+    bool encontrou = false;
+    no_t *aux = lista->cabeca;
+    no_t *jogador_alvo = NULL;
+
+    printf("Digite o ID do jogador:\n");
+    scanf("%hhi",&id);
+    getchar();
+    
+    while(aux != NULL){
+        if(aux->dados.id == id){
+            jogador_alvo = aux;
+            encontrou = true;
+
+            printf("Situação atual %s\n",aux->dados.situacao);
+            
+            printf("Digite uma nova situação(JOGANDO,VENDIDO,MACHUCADO)\n");
+            fgets(nova_situacao,T_STR, stdin);
+            limparBuffer(nova_situacao);
+            to_upper(nova_situacao);
+
+            strcpy(jogador_alvo->dados.situacao, nova_situacao);  
+
+            if (strcmp(nova_situacao, "JOGANDO") == 0) {
+                strcpy(jogador_alvo->dados.status, "ATIVO");
+            } else if (strcmp(nova_situacao, "VENDIDO") == 0 || strcmp(nova_situacao, "MACHUCADO") == 0) {
+                strcpy(jogador_alvo->dados.status, "INATIVO");
+            }
+
+            break;
+        }
+
+        aux = aux->proximo;
+    }
+
+     if(!encontrou){
+       printf("ID não localizado\n");
+    }
+
+    if(strcmp(nova_situacao, "VENDIDO") == 0){
+        printf("Qual o valor que o jogador foi vendido?\n");
+        scanf("%hhi", &novo_valor);
+        jogador_alvo->dados.jg_venda = novo_valor;
+
+        printf("Situacao atualizada com sucesso!");
+  
+    }
 
 }
-void printf_jogadores(dados_jog_t *aux){
 
-    printf("------------------------------------------\n");
-    printf("Nome:-----------------------%s\n", aux->nome);
-    printf("Idade:----------------------%d\n", aux->idade);
-    printf("ID:-------------------------%d\n", aux->id);
-    printf("Altura:---------------------%.2f\n", aux->altura);
-    printf("Peso:-----------------------%.2f\n", aux->peso);
-    printf("Posição:--------------------%s\n", aux->posicao);
-    printf("Venda:----------------------%.2f\n", aux->jg_venda);
-    printf("Aquisição:------------------%.2f\n",aux->aquisicao);
-    printf("Salário:--------------------%.2f\n",aux->salario);
-    printf("Situação:-------------------%s\n",aux->situacao);
+void insere_registro_inicio_jogadores(no_t *novo, lista_jogadores_t *lista){
+
+   if (lista == NULL || novo == NULL) return;
+
+    novo->proximo = lista->cabeca;  // o novo nó aponta para o antigo primeiro nó
+    lista->cabeca = novo;           // o novo nó agora é o primeiro
+    lista->nr_nos++;  
 
 }
-void printf_jogos(jg_reali_t *aux){
+void insere_registro_inicio_jogos(not_t *novo, lista_jogos_t *lista){
 
-    printf("---------------------------------------------\n");
-    printf("Time adversário:--------------%s\n",aux->nome_ti);
-    printf("Data:-------------------------%s\n", aux->data);                                                                
-    printf("Local:------------------------%s\n", aux->local);
-    printf("Resultado:--------------------%d\n", aux->resultado_1);
-    printf("Resultado do adversário:------%d\n", aux->resultado_2);
-    printf("Subustituições:---------------%s\n",aux->substituicao);
+   
+   if (lista == NULL || novo == NULL) return;
+
+    novo->proximo = lista->cabeca;  // o novo nó aponta para o antigo primeiro nó
+    lista->cabeca = novo;           // o novo nó agora é o primeiro
+    lista->nr_nos++;  
 
 }

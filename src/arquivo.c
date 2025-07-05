@@ -1,4 +1,5 @@
 #include "../include/arquivo.h"
+#include "../include/cadastro.h"
 
 void salvar_registros_de_jogadores_binario(string nome_arq, no_t *lista){
 
@@ -7,13 +8,13 @@ void salvar_registros_de_jogadores_binario(string nome_arq, no_t *lista){
     fp = fopen(nome_arq, "wb");
 
     if(!fp){
-        printf("Erro ao abrir arquivo.\n")
+        printf("Erro ao abrir arquivo.\n");
         return;
     }
 
     while(lista){
-        fwite(lista, (sizeof(no_t), 1, fp));
-        lista = lista->prox;
+        fwrite(lista, sizeof(no_t), 1, fp);
+        lista = lista->proximo;
     }
 
     fclose(fp);
@@ -27,13 +28,13 @@ void salvar_registros_de_jogos_binario(string nome_arq, not_t *lista){
 
 
     if(!fp){
-        printf("Erro ao abrir arquivo.\n")
+        printf("Erro ao abrir arquivo.\n");
         return;
     }
 
     while(lista){
-        fwite(lista, (sizeof(not_t), 1, fp));
-        lista = lista->prox;
+        fwrite(lista, sizeof(not_t), 1, fp);
+        lista = lista->proximo;
     }
 
     fclose(fp);
@@ -43,10 +44,10 @@ void ler_registros_de_jogadores_binario(string nome_arq, lista_jogadores_t *list
 
     FILE *fp = NULL;
 
-    fp = fopen(noe_arq, "rb");
+    fp = fopen(nome_arq, "rb");
 
     if(!fp){
-        printf("Erro ao abrir arquivo.\n")
+        printf("Erro ao abrir arquivo.\n");
         return;
     }
 
@@ -70,16 +71,17 @@ void ler_registros_de_jogos_binario(string nome_arq, lista_jogos_t *lista){
 
     FILE *fp = NULL;
 
-    fp = fopen(noe_arq, "rb");
+    fp = fopen(nome_arq, "rb");
 
     if(!fp){
-        printf("Erro ao abrir arquivo.\n")
+        printf("Erro ao abrir arquivo.\n");
         return;
     }
 
     while(!feof(fp)) {
         not_t *aux = (not_t*)malloc(sizeof(not_t));
         fread(aux, sizeof(not_t), 1, fp);
+        
         if (!feof(fp)) { 
             aux->proximo = NULL;
             insere_registro_inicio_jogos(aux, lista);
@@ -112,7 +114,7 @@ void exportar_dados_jogadores_para_arquivo_texto(string nome_arq, no_t *lista){
         fprintf(fp, "Altura....................:%2.f\n", lista->dados.altura);
         fprintf(fp, "Peso......................:%2.f\n", lista->dados.peso);
         fprintf(fp, "Posicao...................:%s\n", lista->dados.posicao);
-        fprintf(fp, "Venda.....................:%2.fn", lista->dados.venda);
+        fprintf(fp, "Venda.....................:%2.fn", lista->dados.jg_venda);
         fprintf(fp, "Aquisicao.................:%.2f\n", lista->dados.aquisicao);
         fprintf(fp, "Salario...................:%.2f\n", lista->dados.salario);
         fprintf(fp, "Situacao..................:%.s\n", lista->dados.situacao);
@@ -178,7 +180,7 @@ void exportar_dados_jogadores_para_arquivo_csv(string nome_arq, no_t *lista){
         fprintf(fp, "Altura....................:%2.f\n", lista->dados.altura);
         fprintf(fp, "Peso......................:%2.f\n", lista->dados.peso);
         fprintf(fp, "Posicao...................:%s\n", lista->dados.posicao);
-        fprintf(fp, "Venda.....................:%2.fn", lista->dados.venda);
+        fprintf(fp, "Venda.....................:%2.fn", lista->dados.jg_venda);
         fprintf(fp, "Aquisicao.................:%.2f\n", lista->dados.aquisicao);
         fprintf(fp, "Salario...................:%.2f\n", lista->dados.salario);
         fprintf(fp, "Situacao..................:%.s\n", lista->dados.situacao);
@@ -209,9 +211,9 @@ void exportar_dados_jogos_para_arquivo_csv(string nome_arq, not_t *lista){
         fprintf(fp, "Resultado adveversario......................:%hhi\n", lista->dados.resultado_2);
         fprintf(fp, "Substituicao................................:%s\n", lista->dados.substituicao);
         
-        
+        lista = lista->proximo;
     }    
-       lista = lista->proximo;
+       
 
     fclose(fp); 
 
@@ -227,7 +229,7 @@ void exportar_dados_jogadores_para_arquivo_html(string nome_arq, no_t *lista){
     }
     fprintf(fp , "<html> <body> <table> <tr> <td><h1>Nome do Jogador</h1></td> <td><h1>Idade do Jogador</h1></td> <td><h1>ID do Jogador</h1></td> <td><h1>Altura do Jogador</h1></td> <td><h1>Peso do Jogador</h1></td> <td><h1>Posicao do Jogador</h1></td> <td><h1>Valor de Venda do Jogador</h1></td> <td><h1>Valor de Aquisicao do Jogador</h1></td> <td><h1>Salario do Jogador</h1></td> <td><h1>Situacao do Jogador</h1></td> </tr>\n");
     while(lista){
-        fprintf(fp , "<tr> <td><p>%s</p></td> <td><p>%hhi</p></td> <td><p>%hhi</p></td> <td><p>%2.f</p></td> <td><p>%2.f</p></td> <td><p>%s</p></td> <td><p>%2.f</p></td> <td><p>%2.f</p></td> <td><p>%2.f</p></td> <td><p>%s</p></td> </tr>\n", lista->dados.nome, lista->dados.idade, lista->dados.id, lista->dados.altura, lista->dados.peso, lista->dados.posicao, lista->dados.venda, lista->dados.aquisicao, lista->dados.salario,lista->dados.situacao);
+        fprintf(fp , "<tr> <td><p>%s</p></td> <td><p>%hhi</p></td> <td><p>%hhi</p></td> <td><p>%2.f</p></td> <td><p>%2.f</p></td> <td><p>%s</p></td> <td><p>%2.f</p></td> <td><p>%2.f</p></td> <td><p>%2.f</p></td> <td><p>%s</p></td> </tr>\n", lista->dados.nome, lista->dados.idade, lista->dados.id, lista->dados.altura, lista->dados.peso, lista->dados.posicao, lista->dados.jg_venda, lista->dados.aquisicao, lista->dados.salario,lista->dados.situacao);
         lista = lista->proximo;
 
     }
@@ -247,7 +249,8 @@ void exportar_dados_jogos_para_arquivo_html(string nome_arq, not_t *lista){
     }
     fprintf(fp , "<html> <body> <table> <tr> <td><h1>Time Adversario</h1></td> <td><h1>Data do Jogo</h1></td> <td><h1>Local do Jogo</h1></td> <td><h1>Resultado do time no Jogo</h1></td> <td><h1>Resultado do time adversario no Jogo</h1></td> <td><h1>Substituicoes do Jogo</h1></td> </tr>\n");
     while(lista){
-        fprintf(fp , "<tr> <td><p>%s</p></td> <td><p>%s</p></td> <td><p>%s</p></td> <td><p>%hhi</p></td> <td><p>%hhi</p></td> <td><p>%s</p></td>d><p>%s</p></td> </tr>\n", lista->dados.nome_ti, lista->dados.data, lista->dados.local, lista->dados.resultado_1, lista->dados.resultado_2, lista->dados.substituicao,);
+        fprintf(fp , "<tr> <td><p>%s</p></td> <td><p>%s</p></td> <td><p>%s</p></td> <td><p>%hhi</p></td> <td><p>%hhi</p></td> <td><p>%s</p></td> </tr>\n", lista->dados.nome_ti, lista->dados.data, lista->dados.local, lista->dados.resultado_1, lista->dados.resultado_2, lista->dados.substituicao);
+       
         lista = lista->proximo;
 
     }

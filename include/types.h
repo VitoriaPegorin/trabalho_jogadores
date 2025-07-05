@@ -8,12 +8,17 @@ typedef char string[T_STR];
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <time.h>
+#include <stdbool.h>
+#include <ctype.h>
 
 //Define o tipo dados jogadores
 typedef struct dados_jogadores{
     string nome;
-    unint_t id;
-    unint_t idade;
+    uint8_t idade;
+    uint8_t id;
     float altura;
     float peso;
     string posicao;
@@ -21,47 +26,48 @@ typedef struct dados_jogadores{
     float jg_venda;
     float salario;
     string situacao;
+    string status;
 
 }dados_jog_t;
 
 typedef struct no{
     dados_jog_t dados;
-    dados_jog_t *proximo;
+    struct no *proximo;
 
 } no_t;
 
-typedef struct lista {
+typedef struct lista_jogadores{
     no_t *cabeca;
     uint8_t nr_nos;
-} lista_jogadores_t;
+}lista_jogadores_t;
 
 typedef struct jogadores_escalados{
-    dados_jog_t *jogador;
+    no_t *jogador;
     struct jogadores_escalados *prox;
 
-}jogadores_escalado_t;
+}jogadores_escalados_t;
 
 
 typedef struct jogos_realizados{
     string nome_ti;
     string data;
     string local;
-    unint_t resultado_1, resultado_2;
+    uint8_t resultado_1, resultado_2;
     string substituicao;
-    jogadores_escalado_t *time_escalado;
+    jogadores_escalados_t *time_escalado;
 
 }jg_reali_t;
 
 typedef struct not{
     jg_reali_t dados;
-    jg_reali_t *proximo_2;
+    struct not *proximo;
 
 } not_t;
 
-typedef struct lista {
+typedef struct lista_jogos{
     not_t *cabeca;
     uint8_t nr_nos;
-} lista_jogos_t;
+}lista_jogos_t;
 
 
 
